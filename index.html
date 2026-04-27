@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>星火同行思政学伴</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #0f0c29;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  /* 背景动态粒子 */
+  .bg {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    z-index: 0;
+  }
+
+  .bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(120, 80, 255, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(255, 100, 150, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(50, 200, 255, 0.1) 0%, transparent 50%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgPulse {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
+  /* 浮动星点 */
+  .stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d) ease-in-out infinite alternate;
+    opacity: 0;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 0.8; transform: scale(1.2); }
+  }
+
+  /* 主卡片 */
+  .card {
+    position: relative;
+    z-index: 10;
+    width: min(92vw, 400px);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    padding: 40px 32px 36px;
+    box-shadow:
+      0 32px 64px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255,255,255,0.05) inset,
+      0 1px 0 rgba(255,255,255,0.15) inset;
+    animation: cardIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* 顶部图标区 */
+  .icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .icon-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7, #ec4899, #f97316);
+    padding: 3px;
+    animation: spin 8s linear infinite;
+    box-shadow: 0 0 32px rgba(168, 85, 247, 0.5);
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .icon-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #1a1535;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    animation: spin 8s linear infinite reverse;
+  }
+
+  /* 标题 */
+  .title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 28px;
+    letter-spacing: 1px;
+  }
+
+  /* 分割线 */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,85,247,0.4), rgba(236,72,153,0.4), transparent);
+    margin-bottom: 24px;
+  }
+
+  /* 描述文字 */
+  .desc {
+    font-size: 14px;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.72);
+    text-align: justify;
+    margin-bottom: 32px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+  }
+
+  .desc::before {
+    content: '"';
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    font-size: 32px;
+    color: rgba(168,85,247,0.4);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+
+  /* 功能标签 */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+    justify-content: center;
+  }
+
+  .tag {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border: 1px solid;
+  }
+
+  .tag-purple { color: #c084fc; border-color: rgba(192,132,252,0.3); background: rgba(192,132,252,0.08); }
+  .tag-pink   { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.08); }
+  .tag-blue   { color: #60a5fa; border-color: rgba(96,165,250,0.3);  background: rgba(96,165,250,0.08); }
+  .tag-green  { color: #34d399; border-color: rgba(52,211,153,0.3);  background: rgba(52,211,153,0.08); }
+
+  /* 主按钮 */
+  .btn-main {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(168,85,247,0.45);
+    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-main:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 16px rgba(168,85,247,0.3);
+  }
+
+  .btn-main:active::before { opacity: 1; }
+
+  /* 短链提示 */
+  .short-url {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .short-url span {
+    color: rgba(168,85,247,0.7);
+    font-family: monospace;
+    font-size: 13px;
+  }
+
+  /* 底部 */
+  .footer {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 1px;
+    z-index: 10;
+    position: relative;
+  }
+
+  /* 脉冲光晕 */
+  .pulse-ring {
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 30px;
+    border: 2px solid rgba(168,85,247,0.3);
+    animation: pulseRing 3s ease-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pulseRing {
+    0%   { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 0;   transform: scale(1.04); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<!-- 星点 -->
+<div class="stars" id="stars"></div>
+
+<div class="card">
+  <div class="pulse-ring"></div>
+
+  <div class="icon-wrap">
+    <div class="icon-ring">
+      <div class="icon-inner">🌟</div>
+    </div>
+  </div>
+
+  <div class="title">星火同行思政学伴</div>
+  <div class="subtitle">AI 智能体 · 思政情感陪伴</div>
+
+  <div class="divider"></div>
+
+  <div class="desc">
+    嗨，我是星火同行思政学伴，是愿意陪你聊学习、聊情绪、聊成长的真诚搭子。迷茫时一起找方向，压力大时陪你缓一缓，想提升时给你实用建议。用有温度的陪伴，把思政课变成听得懂、愿意聊、能共鸣的日常。
+  </div>
+
+  <div class="tags">
+    <span class="tag tag-purple">💬 情感陪伴</span>
+    <span class="tag tag-pink">🎯 思政引导</span>
+    <span class="tag tag-blue">📚 学习助手</span>
+    <span class="tag tag-green">✨ 成长同行</span>
+  </div>
+
+  <a class="btn-main" href="https://tinyurl.com/23ncazhw" target="_blank" rel="noopener">
+    开始对话 →
+  </a>
+
+  <div class="short-url">短链接：<span>tinyurl.com/23ncazhw</span></div>
+</div>
+
+<div class="footer">仅供课堂学习使用 · 请勿转发至课堂外</div>
+
+<script>
+  // 生成随机星点
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: ${Math.random() * 100}%;
+      --d: ${2 + Math.random() * 4}s;
+      animation-delay: ${Math.random() * 4}s;
+      width: ${1 + Math.random() * 2}px;
+      height: ${1 + Math.random() * 2}px;
+    `;
+    container.appendChild(s);
+  }
+</script>
+</body>
+</html>
