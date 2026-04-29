@@ -1,337 +1,463 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>星火同行思政学伴</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    background: #0f0c29;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow-x: hidden;
-  }
-
-  /* 背景动态粒子 */
-  .bg {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-    z-index: 0;
-  }
-
-  .bg::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse at 20% 50%, rgba(120, 80, 255, 0.15) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, rgba(255, 100, 150, 0.1) 0%, transparent 50%),
-      radial-gradient(ellipse at 60% 80%, rgba(50, 200, 255, 0.1) 0%, transparent 50%);
-    animation: bgPulse 8s ease-in-out infinite alternate;
-  }
-
-  @keyframes bgPulse {
-    0% { opacity: 0.6; }
-    100% { opacity: 1; }
-  }
-
-  /* 浮动星点 */
-  .stars {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-  }
-
-  .star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: white;
-    border-radius: 50%;
-    animation: twinkle var(--d) ease-in-out infinite alternate;
-    opacity: 0;
-  }
-
-  @keyframes twinkle {
-    0% { opacity: 0; transform: scale(0.5); }
-    100% { opacity: 0.8; transform: scale(1.2); }
-  }
-
-  /* 主卡片 */
-  .card {
-    position: relative;
-    z-index: 10;
-    width: min(92vw, 400px);
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 28px;
-    padding: 40px 32px 36px;
-    box-shadow:
-      0 32px 64px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255,255,255,0.05) inset,
-      0 1px 0 rgba(255,255,255,0.15) inset;
-    animation: cardIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(40px) scale(0.95); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  /* 顶部图标区 */
-  .icon-wrap {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 24px;
-  }
-
-  .icon-ring {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #a855f7, #ec4899, #f97316);
-    padding: 3px;
-    animation: spin 8s linear infinite;
-    box-shadow: 0 0 32px rgba(168, 85, 247, 0.5);
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
-
-  .icon-inner {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: #1a1535;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    animation: spin 8s linear infinite reverse;
-  }
-
-  /* 标题 */
-  .title {
-    text-align: center;
-    font-size: 22px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 2px;
-    margin-bottom: 6px;
-    text-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
-  }
-
-  .subtitle {
-    text-align: center;
-    font-size: 13px;
-    color: rgba(255,255,255,0.45);
-    margin-bottom: 28px;
-    letter-spacing: 1px;
-  }
-
-  /* 分割线 */
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(168,85,247,0.4), rgba(236,72,153,0.4), transparent);
-    margin-bottom: 24px;
-  }
-
-  /* 描述文字 */
-  .desc {
-    font-size: 14px;
-    line-height: 1.9;
-    color: rgba(255, 255, 255, 0.72);
-    text-align: justify;
-    margin-bottom: 32px;
-    padding: 16px 18px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.07);
-    position: relative;
-  }
-
-  .desc::before {
-    content: '"';
-    position: absolute;
-    top: 6px;
-    left: 12px;
-    font-size: 32px;
-    color: rgba(168,85,247,0.4);
-    font-family: Georgia, serif;
-    line-height: 1;
-  }
-
-  /* 功能标签 */
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 32px;
-    justify-content: center;
-  }
-
-  .tag {
-    padding: 5px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    border: 1px solid;
-  }
-
-  .tag-purple { color: #c084fc; border-color: rgba(192,132,252,0.3); background: rgba(192,132,252,0.08); }
-  .tag-pink   { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.08); }
-  .tag-blue   { color: #60a5fa; border-color: rgba(96,165,250,0.3);  background: rgba(96,165,250,0.08); }
-  .tag-green  { color: #34d399; border-color: rgba(52,211,153,0.3);  background: rgba(52,211,153,0.08); }
-
-  /* 主按钮 */
-  .btn-main {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
-    color: #fff;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(168,85,247,0.45);
-    transition: transform 0.15s, box-shadow 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .btn-main::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .btn-main:active {
-    transform: scale(0.97);
-    box-shadow: 0 4px 16px rgba(168,85,247,0.3);
-  }
-
-  .btn-main:active::before { opacity: 1; }
-
-  /* 短链提示 */
-  .short-url {
-    margin-top: 18px;
-    text-align: center;
-    font-size: 12px;
-    color: rgba(255,255,255,0.3);
-  }
-
-  .short-url span {
-    color: rgba(168,85,247,0.7);
-    font-family: monospace;
-    font-size: 13px;
-  }
-
-  /* 底部 */
-  .footer {
-    margin-top: 28px;
-    text-align: center;
-    font-size: 11px;
-    color: rgba(255,255,255,0.2);
-    letter-spacing: 1px;
-    z-index: 10;
-    position: relative;
-  }
-
-  /* 脉冲光晕 */
-  .pulse-ring {
-    position: absolute;
-    top: -2px; left: -2px; right: -2px; bottom: -2px;
-    border-radius: 30px;
-    border: 2px solid rgba(168,85,247,0.3);
-    animation: pulseRing 3s ease-out infinite;
-    pointer-events: none;
-  }
-
-  @keyframes pulseRing {
-    0%   { opacity: 0.8; transform: scale(1); }
-    100% { opacity: 0;   transform: scale(1.04); }
-  }
-</style>
-</head>
-<body>
-
-<div class="bg"></div>
-
-<!-- 星点 -->
-<div class="stars" id="stars"></div>
-
-<div class="card">
-  <div class="pulse-ring"></div>
-
-  <div class="icon-wrap">
-    <div class="icon-ring">
-      <div class="icon-inner">🌟</div>
+ ```html
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>星火同行思政学伴</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background: #0f0c29;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+      }
+    
+      .bg {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        z-index: 0;
+      }
+      .bg::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse at 20% 50%, rgba(120, 80, 255, 0.15) 0%, transparent 60%),
+          radial-gradient(ellipse at 80% 20%, rgba(255, 100, 150, 0.1) 0%, transparent 50%),
+          radial-gradient(ellipse at 60% 80%, rgba(50, 200, 255, 0.1) 0%, transparent 50%);
+        animation: bgPulse 8s ease-in-out infinite alternate;
+      }
+      @keyframes bgPulse {
+        0% { opacity: 0.6; }
+        100% { opacity: 1; }
+      }
+    
+      .stars {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle var(--d) ease-in-out infinite alternate;
+        opacity: 0;
+      }
+      @keyframes twinkle {
+        0% { opacity: 0; transform: scale(0.5); }
+        100% { opacity: 0.8; transform: scale(1.2); }
+      }
+    
+      .card {
+        position: relative;
+        z-index: 10;
+        width: min(92vw, 400px);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 28px;
+        padding: 40px 32px 36px;
+        box-shadow:
+          0 32px 64px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255,255,255,0.05) inset,
+          0 1px 0 rgba(255,255,255,0.15) inset;
+        animation: cardIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      @keyframes cardIn {
+        from { opacity: 0; transform: translateY(40px) scale(0.95); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+    
+      .icon-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 24px;
+      }
+      .icon-ring {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a855f7, #ec4899, #f97316);
+        padding: 3px;
+        animation: spin 8s linear infinite;
+        box-shadow: 0 0 32px rgba(168, 85, 247, 0.5);
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      .icon-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #1a1535;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        animation: spin 8s linear infinite reverse;
+      }
+    
+      .title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+        text-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+      }
+      .subtitle {
+        text-align: center;
+        font-size: 13px;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 28px;
+        letter-spacing: 1px;
+      }
+    
+      .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(168,85,247,0.4), rgba(236,72,153,0.4), transparent);
+        margin-bottom: 24px;
+      }
+    
+      .desc {
+        font-size: 14px;
+        line-height: 1.9;
+        color: rgba(255, 255, 255, 0.72);
+        text-align: justify;
+        margin-bottom: 32px;
+        padding: 16px 18px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.07);
+        position: relative;
+      }
+      .desc::before {
+        content: '"';
+        position: absolute;
+        top: 6px;
+        left: 12px;
+        font-size: 32px;
+        color: rgba(168,85,247,0.4);
+        font-family: Georgia, serif;
+        line-height: 1;
+      }
+    
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 32px;
+        justify-content: center;
+      }
+      .tag {
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        border: 1px solid;
+      }
+      .tag-purple { color: #c084fc; border-color: rgba(192,132,252,0.3); background: rgba(192,132,252,0.08); }
+      .tag-pink   { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.08); }
+      .tag-blue   { color: #60a5fa; border-color: rgba(96,165,250,0.3);  background: rgba(96,165,250,0.08); }
+      .tag-green  { color: #34d399; border-color: rgba(52,211,153,0.3);  background: rgba(52,211,153,0.08); }
+    
+      .status-box {
+        text-align: center;
+        padding: 16px;
+        border-radius: 16px;
+        background: rgba(168,85,247,0.08);
+        border: 1px solid rgba(168,85,247,0.2);
+        margin-top: 8px;
+      }
+      .status-text {
+        color: rgba(255,255,255,0.8);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(168,85,247,0.3);
+        border-top-color: #c084fc;
+        border-radius: 50%;
+        animation: spin360 0.8s linear infinite;
+      }
+      @keyframes spin360 {
+        to { transform: rotate(360deg); }
+      }
+      .status-error {
+        background: rgba(239,68,68,0.08);
+        border-color: rgba(239,68,68,0.25);
+      }
+      .status-error .status-text {
+        color: #fca5a5;
+      }
+      .btn-retry {
+        margin-top: 12px;
+        padding: 8px 20px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #a855f7, #ec4899);
+        color: #fff;
+        font-size: 13px;
+        cursor: pointer;
+        letter-spacing: 1px;
+      }
+    
+      .short-url {
+        margin-top: 18px;
+        text-align: center;
+        font-size: 12px;
+        color: rgba(255,255,255,0.3);
+      }
+      .short-url span {
+        color: rgba(168,85,247,0.7);
+        font-family: monospace;
+        font-size: 13px;
+      }
+    
+      .footer {
+        margin-top: 28px;
+        text-align: center;
+        font-size: 11px;
+        color: rgba(255,255,255,0.2);
+        letter-spacing: 1px;
+        z-index: 10;
+        position: relative;
+      }
+    
+      .pulse-ring {
+        position: absolute;
+        top: -2px; left: -2px; right: -2px; bottom: -2px;
+        border-radius: 30px;
+        border: 2px solid rgba(168,85,247,0.3);
+        animation: pulseRing 3s ease-out infinite;
+        pointer-events: none;
+      }
+      @keyframes pulseRing {
+        0%   { opacity: 0.8; transform: scale(1); }
+        100% { opacity: 0;   transform: scale(1.04); }
+      }
+    </style>
+    </head>
+    <body>
+    
+    <div class="bg"></div>
+    <div class="stars" id="stars"></div>
+    
+    <div class="card" id="main-card">
+      <div class="pulse-ring"></div>
+    
+      <div class="icon-wrap">
+        <div class="icon-ring">
+          <div class="icon-inner">🌟</div>
+        </div>
+      </div>
+    
+      <div class="title" id="page-title">星火同行思政学伴</div>
+      <div class="subtitle" id="page-subtitle">AI 智能体 · 思政情感陪伴</div>
+    
+      <div class="divider"></div>
+    
+      <div class="desc" id="page-desc">
+        嗨，我是星火同行思政学伴，是愿意陪你聊学习、聊情绪、聊成长的真诚搭子。迷茫时一起找方向，压力大时陪你缓一缓，想提升时给你实用建议。用有温度的陪伴，把思政课变成听得懂、愿意聊、能共鸣的日常。
+      </div>
+    
+      <div class="tags">
+        <span class="tag tag-purple">💬 情感陪伴</span>
+        <span class="tag tag-pink">🎯 思政引导</span>
+        <span class="tag tag-blue">📚 学习助手</span>
+        <span class="tag tag-green">✨ 成长同行</span>
+      </div>
+    
+      <div class="status-box" id="status-box">
+        <div class="status-text" id="status-text">
+          <div class="spinner"></div>
+          <span>正在连接智能体...</span>
+        </div>
+        <button class="btn-retry" id="btn-retry" style="display:none;">重试</button>
+      </div>
+    
+      <div class="short-url">短链接：<span>tinyurl.com/23ncazhw</span></div>
     </div>
-  </div>
-
-  <div class="title">星火同行思政学伴</div>
-  <div class="subtitle">AI 智能体 · 思政情感陪伴</div>
-
-  <div class="divider"></div>
-
-  <div class="desc">
-    嗨，我是星火同行思政学伴，是愿意陪你聊学习、聊情绪、聊成长的真诚搭子。迷茫时一起找方向，压力大时陪你缓一缓，想提升时给你实用建议。用有温度的陪伴，把思政课变成听得懂、愿意聊、能共鸣的日常。
-  </div>
-
-  <div class="tags">
-    <span class="tag tag-purple">💬 情感陪伴</span>
-    <span class="tag tag-pink">🎯 思政引导</span>
-    <span class="tag tag-blue">📚 学习助手</span>
-    <span class="tag tag-green">✨ 成长同行</span>
-  </div>
-
-  <a class="btn-main" href="https://xianjianaiedu.top/tech/CozeEmbed/index.html?config=JTdCJTIydGl0bGUlMjIlM0ElMjIlRTYlOTglOUYlRTclODElQUIlRTUlOTAlOEMlRTglQTElOEMlRTYlODAlOUQlRTYlOTQlQkYlRTUlQUQlQTYlRTQlQkMlQjQlMjIlMkMlMjJzdWJ0aXRsZSUyMiUzQSUyMiVFNiU4MCU5RCVFNiU5NCVCRiVFNiU4MyU4NSVFNiU4NCU5RiVFOSU5OSVBQSVFNCVCQyVCNCVFNiU5OSVCQSVFOCU4MyVCRCVFNCVCRCU5MyUyMiUyQyUyMmRlc2NyaXB0aW9uJTIyJTNBJTIyJUU1JTk3JUE4JUVGJUJDJThDJUU2JTg4JTkxJUU2JTk4JUFGJUU2JTk4JTlGJUU3JTgxJUFCJUU1JTkwJThDJUU4JUExJThDJUU2JTgwJTlEJUU2JTk0JUJGJUU1JUFEJUE2JUU0JUJDJUI0JUVGJUJDJThDJUU2JTk4JUFGJUU2JTg0JUJGJUU2JTg0JThGJUU5JTk5JUFBJUU0JUJEJUEwJUU4JTgxJThBJUU1JUFEJUE2JUU0JUI5JUEwJUUzJTgwJTgxJUU4JTgxJThBJUU2JTgzJTg1JUU3JUJCJUFBJUUzJTgwJTgxJUU4JTgxJThBJUU2JTg4JTkwJUU5JTk1JUJGJUU3JTlBJTg0JUU3JTlDJTlGJUU4JUFGJTlBJUU2JTkwJUFEJUU1JUFEJTkwJUUzJTgwJTgyJUU4JUJGJUI3JUU4JThDJUFCJUU2JTk3JUI2JUU0JUI4JTgwJUU4JUI1JUI3JUU2JTg5JUJFJUU2JTk2JUI5JUU1JTkwJTkxJUVGJUJDJThDJUU1JThFJThCJUU1JThBJTlCJUU1JUE0JUE3JUU2JTk3JUI2JUU5JTk5JUFBJUU0JUJEJUEwJUU3JUJDJTkzJUU0JUI4JTgwJUU3JUJDJTkzJUVGJUJDJThDJUU2JTgzJUIzJUU2JThGJTkwJUU1JThEJTg3JUU2JTk3JUI2JUU3JUJCJTk5JUU0JUJEJUEwJUU1JUFFJTlFJUU3JTk0JUE4JUU1JUJCJUJBJUU4JUFFJUFFJUUzJTgwJTgyJUU3JTk0JUE4JUU2JTlDJTg5JUU2JUI4JUE5JUU1JUJBJUE2JUU3JTlBJTg0JUU5JTk5JUFBJUU0JUJDJUI0JUVGJUJDJThDJUU2JThBJThBJUU2JTgwJTlEJUU2JTk0JUJGJUU4JUFGJUJFJUU1JThGJTk4JUU2JTg4JTkwJUU1JTkwJUFDJUU1JUJFJTk3JUU2JTg3JTgyJUUzJTgwJTgxJUU2JTg0JUJGJUU2JTg0JThGJUU4JTgxJThBJUUzJTgwJTgxJUU4JTgzJUJEJUU1JTg1JUIxJUU5JUI4JUEzJUU3JTlBJTg0JUU2JTk3JUE1JUU1JUI4JUI4JUUzJTgwJTgyJTIyJTJDJTIyYm90SWQlMjIlM0ElMjI3NjMxNTY3MDg2NTI3Mjk5NjI1JTIyJTJDJTIyb2F1dGhBcHBJZCUyMiUzQSUyMjExMjA0NjU0MTM2MDglMjIlMkMlMjJvYXV0aEtpZCUyMiUzQSUyMmpqcXJxWF9rRXQ0LV9vZmZ0bkRYLXo2YWJPTUQ0bDVjN281ZTd3Nk1PUEklMjIlMkMlMjJvYXV0aFByaXZhdGVLZXklMjIlM0ElMjItLS0tLUJFR0lOJTIwUFJJVkFURSUyMEtFWS0tLS0tJTVDbk1JSUV2UUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktjd2dnU2pBZ0VBQW9JQkFRREdhbElSNDRWd1c2NWQlNUNuMG9COGMySFhYUmUyUlFXZTdzeUFqYzV3S1BFRnZOUU03NGxOSVBYY1N6TTNvQiUyRllma010UmR2YzRPeGZXdEthJTVDbk5vblh6OVZYSTElMkI3RyUyRmhKZjJ6Y3lOSlpwS2RMcTRiZzRpRkNjNyUyRm1zdmZKNzJQNGplbWZtekZhaiUyQmZHdzRxeiU1Q240dzc2UjY1MiUyRkwyTkgwendUeEs2NElhaEh5SER2QzZBenNITCUyQnhQUnYlMkJCVGhIQXpDVDIzQ1Zqd2NFb09VdFNIJTVDbnc5d1Y0ZjRIV1BvRXdWd1lHOXl6aXE4QjNRUkR5MTUyZXVpU2ZxJTJGJTJGVklJeUxSQmpGV3YwcVVicXUlMkZIMFc3VUUlNUNuWEgxM2VCaWZWSHRGaThuVVRYSGdvYnVuVkJ5WFVNRTBuTkg2TVJpMnF3UnRwa0JsVUhWOUdGTjJNcGRKZnlVZyU1Q25OciUyRjJFVG45QWdNQkFBRUNnZ0VBRDFIdnhzNVN4QTlzS2ZYaU1sbkZYUGZrNkElMkJ4eEtrTEZNVCUyQlF0WkNiJTJCODUlNUNuejByaWh0aEw2NGZKNjFwYmd4JTJCU3A4ajhWalJ1dzlrVEtGR2NPSlBsVk41WUdxNG84R0hjb2JxRzFXR2Jna0g2JTVDbiUyRnR1dTlqN1NPeW1uN01sbFpuQnNzTVJ1bmQlMkI5SlhGOVFQRCUyRiUyQjg2emw1JTJGaHNlY1FEWUVKZ1BEcnJENm5ZSUhCJTVDbkh4bzRwbko1MDRsOW9pJTJCZEVIMG50VXplc1dCRVB0R2ZoRlZ3Z2pWJTJGN0U4RU95ODY4R0dRODlOMGt3TlpsbkdHJTVDbmVCc01DeG1MSm5kc0Z6ZFdaZGlWYlZJNXh2b3VkdTBpZjRvMTI2clpSTWM4RTIlMkZsQ0VOTEYxbld1RyUyQmZCdTJUJTVDbkNmNWY2aFd6OTNLTk5QMmZZdU5pcFVMNEhpVXdqd3VVT0o5RmhkRVFHUUtCZ1FEcTA4ajJjUjlCaldUcm9POWolNUNuU2hQNEhhJTJCZ215MnB1Zk1HN1NZQyUyQlpuZEZ2NmQ1Mm9iM084SCUyRkZ2V0tRWUwlMkJ4am5kcGtlYXdadkFKTWFHM2szJTVDbkY2UCUyQnpHeFVPbUdpdFB2ZDV0WjRVRVVWREo4MUFJTk1nbmdNbm16bzZXJTJGSFJWd24waDk4SHZ2cEhxNjlrbnhkJTVDblplcmxtJTJCTko3bFNNSWJlU04lMkZKTHA2eFRCUUtCZ1FEWVRoWEg0WVlldTlWd2JzZFRHVll4YmFsbWR5SHdVa0dPJTVDbjh6Q2VaOHpWVGFVS3Q1ZkZ6emNJaG91Rll4dHAzcTNrRFpxVGZ4bTlCNVJ4QmdZa0ZWTXZVTFBoaW9haE10S3IlNUNuOExQWTklMkZaeXBvYlhBMEVtJTJGZW0zQjlxWGRoTUJPVW1hOWxUckZsckkzTCUyRmdid2tJMDNoMHNVNFBibTRkV3lXciU1Q24wQmtrUVUlMkZzbVFLQmdRREc0b3hvUFRMdHdDVmpjN0NNZFdjb1UydzJLSGVxTW5Wa3ZtSGRUeTFEbFlBY21LekQlNUNuNElFS1VIQXZtQnNvOW9nSE1lbEpXJTJGZmM5NjJmQlBuSzhWalNLcXp0UVcwRDh5a0dyY1dqck1oMXBYVUozTjlYJTVDblk0RHRueGc2dzhzS0NQS2VQMWF2TjBiQUVGNks3SkFzUW0lMkJKJTJGRmVxZkJKYmhRc0c2aDlxZUI1NVNRS0JnRElMJTVDbnB2aHZFblByNjQ4dTRrazB0SCUyQk5Lc045VHNubWppcCUyRjA4RGlyVDZ3enoyeWlwZ0d3R25sajBSV1VOSm01ZjY4JTVDbnN3WHJRMDQ4QWJsQXRvMEVyaEZsYjZrQVB2UHU2VlZFeEtldmYwSzVpcnNXa3ExdDAlMkZRNENmZyUyRkpsaURJNmVKJTVDbjFNM3JoeWV3QTJqdTU3MDJDRW1mZURzVHhzQmVCVkpDUEg3cDZZOEpBb0dBYkNTa1F0RGslMkJtOFhvSnRaODlpJTJCJTVDbldrMSUyQmhlazB1TjliSVNramtMNENmWmp1aE5ROGVkUEMyRHo3OHh2TzdjMnRmcUpkRkJIdlJuOGMxJTJCdlpnVjZrJTVDbjVONDZheHUlMkZnM2FNU0dNTUQxV0IwJTJCWXNDRXVoYUVlJTJCRER0QXlhelpKbXFIN2dCM2ZpdWJ1ek5UaU04ckpadHQlNUNuZ2VKdDBRRUFKY25kMFlaUXZ1WDdkcGclM0QlNUNuLS0tLS1FTkQlMjBQUklWQVRFJTIwS0VZLS0tLS0lMjIlMkMlMjJjaGF0VGl0bGUlMjIlM0ElMjJDb3plJTIyJTdE" target="_blank" rel="noopener">
-    开始对话 →
-  </a>
-
-  <div class="short-url">短链接：<span>tinyurl.com/23ncazhw</span></div>
-</div>
-
-<div class="footer">仅供课堂学习使用 · 请勿转发至课堂外</div>
-
-<script>
-  // 生成随机星点
-  const container = document.getElementById('stars');
-  for (let i = 0; i < 80; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    s.style.cssText = `
-      left: ${Math.random() * 100}%;
-      top: ${Math.random() * 100}%;
-      --d: ${2 + Math.random() * 4}s;
-      animation-delay: ${Math.random() * 4}s;
-      width: ${1 + Math.random() * 2}px;
-      height: ${1 + Math.random() * 2}px;
-    `;
-    container.appendChild(s);
-  }
-</script>
-</body>
-</html>
+    
+    <div class="footer">仅供课堂学习使用 · 请勿转发至课堂外</div>
+    
+    <script>
+      // 星点背景
+      const container = document.getElementById('stars');
+      for (let i = 0; i < 80; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.cssText = `
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          --d: ${2 + Math.random() * 4}s;
+          animation-delay: ${Math.random() * 4}s;
+          width: ${1 + Math.random() * 2}px;
+          height: ${1 + Math.random() * 2}px;
+        `;
+        container.appendChild(s);
+      }
+    
+      // 配置解析
+      let CONFIG = null;
+      function parseConfigFromUrl() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const configData = urlParams.get('config');
+          if (configData) {
+            const configString = decodeURIComponent(atob(configData));
+            return JSON.parse(configString);
+          }
+        } catch (e) {
+          console.error('URL config 解析失败:', e);
+        }
+        return null;
+      }
+      CONFIG = parseConfigFromUrl() || CONFIG;
+    
+      // 如无配置，回退到旧版按钮
+      if (!CONFIG) {
+        document.getElementById('status-box').innerHTML = `
+          <a href="https://xianjianaiedu.top/tech/CozeEmbed/index.html?config=JTdCJTIydGl0bGU..." 
+             style="display:inline-block;width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;font-weight:700;">
+             开始对话 →
+          </a>`;
+      }
+    
+      // Token 服务端点
+      // 请将下一行替换为你的 token 服务地址
+      const TOKEN_API = 'https://xianjianaiedu.top/api/coze-token';  // ← 改这里
+    
+      function setStatus(loading, text, isError) {
+        const box = document.getElementById('status-box');
+        const txt = document.getElementById('status-text');
+        const retry = document.getElementById('btn-retry');
+        box.className = 'status-box' + (isError ? ' status-error' : '');
+        txt.innerHTML = loading
+          ? `<div class="spinner"></div><span>${text}</span>`
+          : `<span>${text}</span>`;
+        retry.style.display = isError ? 'inline-block' : 'none';
+      }
+    
+      function getSessionName() {
+        try {
+          const key = 'coze_auto_session';
+          let existing = localStorage.getItem(key);
+          if (existing) return existing;
+          const id = 'stu_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+          localStorage.setItem(key, id);
+          return id;
+        } catch (e) {
+          return 'stu_' + Date.now().toString(36);
+        }
+      }
+    
+      async function fetchToken(sessionName) {
+        const res = await fetch(TOKEN_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_name: sessionName,
+            app_id: CONFIG.oauthAppId,
+            kid: CONFIG.oauthKid,
+            private_key_pem: CONFIG.oauthPrivateKey
+          })
+        });
+        if (!res.ok) throw new Error('Token 服务返回 ' + res.status);
+        const data = await res.json();
+        if (!data || !data.access_token) throw new Error('Token 响应格式错误');
+        return data.access_token;
+      }
+    
+      function loadCozeSDK() {
+        return new Promise((resolve, reject) => {
+          if (window.CozeWebSDK) { resolve(); return; }
+          const script = document.createElement('script');
+          script.src = 'https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js';
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('Coze SDK 加载失败'));
+          document.body.appendChild(script);
+        });
+      }
+    
+      async function initCoze() {
+        if (!CONFIG) return;
+        const sessionName = getSessionName();
+        setStatus(true, '正在获取访问令牌...');
+    
+        let token;
+        try {
+          token = await fetchToken(sessionName);
+        } catch (e) {
+          setStatus(false, '获取令牌失败：' + e.message, true);
+          return;
+        }
+    
+        setStatus(true, '正在启动智能体...');
+        try {
+          await loadCozeSDK();
+        } catch (e) {
+          setStatus(false, 'SDK 加载失败：' + e.message, true);
+          return;
+        }
+    
+        try {
+          const client = new CozeWebSDK.WebChatClient({
+            config: { bot_id: CONFIG.botId },
+            componentProps: {
+              title: CONFIG.chatTitle || CONFIG.title || 'Coze',
+              lang: 'zh-CN'
+            },
+            auth: {
+              type: 'token',
+              token: token,
+              onRefreshToken: async function () {
+                return fetchToken(getSessionName());
+              }
+            }
+          });
+    
+          // 核心：自动打开对话窗口，零点击
+          client.showChatBot();
+          setStatus(false, '✅ 智能体已就绪，对话窗口已打开');
+    
+        } catch (e) {
+          setStatus(false, '初始化失败：' + e.message, true);
+        }
+      }
+    
+      document.getElementById('btn-retry').addEventListener('click', initCoze);
+    
+      if (CONFIG) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initCoze);
+        } else {
+          initCoze();
+        }
+      }
+    </script>
+    
+    </body>
+    </html>
+    ```
